@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Upload, FileText, X, Plus } from "lucide-react"
 import { useState } from "react"
+import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,12 +19,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { documentsSchema } from "@/types/employee-form"
-import { z } from "zod"
 
-export type Documents = z.infer<typeof documentsSchema>
+// Use z.input to get the type that matches what the form expects
+type Documents = z.input<typeof documentsSchema>
 
 interface DocumentsStepProps {
-    data: Documents
+    data: Partial<Documents>
     onUpdate: (data: Documents) => void
     onNext: () => void
     onBack: () => void
@@ -33,12 +34,12 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
     const form = useForm<Documents>({
         resolver: zodResolver(documentsSchema),
         defaultValues: {
-            national_id: data.national_id || "",
-            passport: data.passport || "",
-            academic_certificates: data.academic_certificates || [],
-            police_clearance: data.police_clearance || "",
-            medical_certificates: data.medical_certificates || "",
-            drivers_license: data.drivers_license || "",
+            national_id: data.national_id ?? "",
+            passport: data.passport ?? "",
+            academic_certificates: data.academic_certificates ?? [],
+            police_clearance: data.police_clearance ?? "",
+            medical_certificates: data.medical_certificates ?? "",
+            drivers_license: data.drivers_license ?? "",
         },
     })
 
@@ -46,14 +47,14 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
 
     const addCertificate = () => {
         if (certificateInput.trim()) {
-            const current = form.getValues("academic_certificates")
+            const current = form.getValues("academic_certificates") || []
             form.setValue("academic_certificates", [...current, certificateInput.trim()])
             setCertificateInput("")
         }
     }
 
     const removeCertificate = (index: number) => {
-        const current = form.getValues("academic_certificates")
+        const current = form.getValues("academic_certificates") || []
         form.setValue(
             "academic_certificates",
             current.filter((_, i) => i !== index)
@@ -75,7 +76,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
         onNext()
     }
 
-    const certificates = form.watch("academic_certificates")
+    const certificates = form.watch("academic_certificates") || []
 
     return (
         <Form {...form}>
@@ -110,7 +111,11 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                         <FormItem>
                                             <FormLabel>Passport Number</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="e.g., AB123456" {...field} />
+                                                <Input
+                                                    placeholder="e.g., AB123456"
+                                                    {...field}
+                                                    value={field.value ?? ""}
+                                                />
                                             </FormControl>
                                             <FormDescription>
                                                 International passport number (if applicable)
@@ -131,7 +136,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                                     <Input
                                                         placeholder="License number or upload file"
                                                         {...field}
-                                                        value={field.value || ""}
+                                                        value={field.value ?? ""}
                                                     />
                                                     <Button
                                                         type="button"
@@ -149,9 +154,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                                 type="file"
                                                 accept=".pdf,.jpg,.jpeg,.png"
                                                 className="hidden"
-                                                onChange={(e) =>
-                                                    handleFileUpload("drivers_license", e)
-                                                }
+                                                onChange={(e) => handleFileUpload("drivers_license", e)}
                                             />
                                             <FormMessage />
                                         </FormItem>
@@ -169,7 +172,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                                     <Input
                                                         placeholder="Upload police clearance"
                                                         {...field}
-                                                        value={field.value || ""}
+                                                        value={field.value ?? ""}
                                                     />
                                                     <Button
                                                         type="button"
@@ -187,9 +190,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                                 type="file"
                                                 accept=".pdf,.jpg,.jpeg,.png"
                                                 className="hidden"
-                                                onChange={(e) =>
-                                                    handleFileUpload("police_clearance", e)
-                                                }
+                                                onChange={(e) => handleFileUpload("police_clearance", e)}
                                             />
                                             <FormMessage />
                                         </FormItem>
@@ -207,7 +208,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                                     <Input
                                                         placeholder="Upload medical certificate"
                                                         {...field}
-                                                        value={field.value || ""}
+                                                        value={field.value ?? ""}
                                                     />
                                                     <Button
                                                         type="button"
@@ -225,9 +226,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                                 type="file"
                                                 accept=".pdf,.jpg,.jpeg,.png"
                                                 className="hidden"
-                                                onChange={(e) =>
-                                                    handleFileUpload("medical_certificates", e)
-                                                }
+                                                onChange={(e) => handleFileUpload("medical_certificates", e)}
                                             />
                                             <FormMessage />
                                         </FormItem>
@@ -235,6 +234,7 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                 />
                             </div>
 
+                            {/* Academic Certificates */}
                             <div className="space-y-4">
                                 <FormLabel>Academic Certificates</FormLabel>
                                 <div className="flex gap-2">
@@ -242,10 +242,12 @@ export function DocumentsStep({ data, onUpdate, onNext, onBack }: DocumentsStepP
                                         placeholder="Certificate name (e.g., Bachelor's Degree)"
                                         value={certificateInput}
                                         onChange={(e) => setCertificateInput(e.target.value)}
-                                        onKeyDown={(e) =>
-                                            e.key === "Enter" &&
-                                            (e.preventDefault(), addCertificate())
-                                        }
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault()
+                                                addCertificate()
+                                            }
+                                        }}
                                     />
                                     <Button type="button" onClick={addCertificate} variant="outline">
                                         <Plus className="h-4 w-4" />

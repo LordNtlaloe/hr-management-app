@@ -35,7 +35,6 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                 <div className="flex justify-between items-start">
                     <div>
                         <CardTitle className="text-xl">{section.section_name}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">{section.employee_position}</p>
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

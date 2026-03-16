@@ -3,10 +3,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const employeeId = parseInt(params.id)
+        const { id } = await params
+        const employeeId = parseInt(id)
         const { searchParams } = new URL(request.url)
         const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString())
 
@@ -35,7 +36,6 @@ export async function GET(
         })
 
         if (!leaveBalance) {
-            // Create default balance if not exists
             const newBalance = await prisma.leaveBalance.create({
                 data: {
                     year,
@@ -54,10 +54,7 @@ export async function GET(
             return NextResponse.json({ success: true, data: newBalance })
         }
 
-        return NextResponse.json({
-            success: true,
-            data: leaveBalance
-        })
+        return NextResponse.json({ success: true, data: leaveBalance })
     } catch (error: any) {
         console.error('Error fetching leave balance:', error)
         return NextResponse.json(
@@ -69,15 +66,13 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const employeeId = parseInt(params.id)
+        const { id } = await params
+        const employeeId = parseInt(id)
         const body = await request.json()
         const { year, ...updates } = body
-
-        // Verify permissions (should be HR or Admin)
-        // Add your auth check here
 
         const leaveBalance = await prisma.leaveBalance.update({
             where: {
@@ -91,16 +86,6 @@ export async function PUT(
                 updated_at: new Date()
             }
         })
-
-        // Log the adjustment for audit trail
-        // await prisma.auditLog.create({
-        //     data: {
-        //         action: 'LEAVE_BALANCE_ADJUSTED',
-        //         employee_id: employeeId,
-        //         details: JSON.stringify({ year, ...updates }),
-        //         user_id: request.headers.get('x-user-id') // Get from auth middleware
-        //     }
-        // })
 
         return NextResponse.json({
             success: true,

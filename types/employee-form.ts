@@ -209,11 +209,11 @@ export const referencesSchema = z.object({
 export const documentsSchema = z.object({
     national_id: z.string().min(1, "National ID is required"),
     passport: z.string().optional(),
-    academic_certificates: z.array(z.string()).default([]),
+    academic_certificates: z.array(z.string()).default([]),  // ← .default([]) not .optional()
     police_clearance: z.string().optional(),
     medical_certificates: z.string().optional(),
     drivers_license: z.string().optional(),
-});
+})
 
 export const employeeFormSchema = z.object({
     personal: personalInfoSchema,

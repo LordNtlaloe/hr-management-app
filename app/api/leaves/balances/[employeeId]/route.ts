@@ -3,10 +3,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { employeeId: string } }
+    { params }: { params: Promise<{ employeeId: string }> }
 ) {
     try {
-        const employeeId = parseInt(params.employeeId)
+        const { employeeId: rawId } = await params
+        const employeeId = parseInt(rawId)
         const { searchParams } = new URL(request.url)
         const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString())
 
@@ -34,7 +35,6 @@ export async function GET(
         })
 
         if (!leaveBalance) {
-            // Create default balance if not exists
             const newBalance = await prisma.leaveBalance.create({
                 data: {
                     year,
@@ -53,10 +53,7 @@ export async function GET(
             return NextResponse.json({ success: true, data: newBalance })
         }
 
-        return NextResponse.json({
-            success: true,
-            data: leaveBalance
-        })
+        return NextResponse.json({ success: true, data: leaveBalance })
     } catch (error: any) {
         console.error('Error fetching leave balance:', error)
         return NextResponse.json(
@@ -68,10 +65,11 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { employeeId: string } }
+    { params }: { params: Promise<{ employeeId: string }> }
 ) {
     try {
-        const employeeId = parseInt(params.employeeId)
+        const { employeeId: rawId } = await params
+        const employeeId = parseInt(rawId)
         const body = await request.json()
         const { year, ...updates } = body
 

@@ -19,7 +19,7 @@ interface EmployeeLeaveBalanceProps {
     employeeId: number
 }
 
-export function EmployeeLeaveBalance({ employeeId }: EmployeeLeaveBalanceProps) {
+export default function EmployeeLeaveBalance({ employeeId }: EmployeeLeaveBalanceProps) {
     const [balance, setBalance] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -39,7 +39,7 @@ export function EmployeeLeaveBalance({ employeeId }: EmployeeLeaveBalanceProps) 
                 setBalance(data.data)
             }
         } catch (error) {
-            toast("Error",{
+            toast("Error", {
                 description: 'Failed to fetch leave balance',
                 className: 'bg-red-500'
             })

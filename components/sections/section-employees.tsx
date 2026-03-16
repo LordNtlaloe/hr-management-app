@@ -82,7 +82,6 @@ export const SectionEmployees: React.FC<SectionEmployeesProps> = ({
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <p className="text-sm text-gray-500">Position Title</p>
-                                <p className="font-medium">{section.employee_position}</p>
                             </div>
                             {section.employee_id && (
                                 <div>

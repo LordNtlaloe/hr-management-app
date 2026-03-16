@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
         const newSection = await prisma.section.create({
             data: {
                 section_name,
-                employee_position: employee_position || '',
                 employee_id: employee_id || '',
             },
         })
