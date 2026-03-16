@@ -1,0 +1,406 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  HR_OFFICER
+  EMPLOYEE
+  SECTION_HEAD
+  HEAD_OF_DEPARTMENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum MARITAL_STATUS {
+  SINGLE
+  MARRIED
+  WIDOWED
+  DIVORCED
+}
+
+enum LeaveStatus {
+  PENDING
+  HR_REVIEW
+  SUPERVISOR_REVIEW
+  FINAL_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  UNPAID
+  MATERNITY
+}
+
+enum Recommendation {
+  RECOMMEND
+  NOT_RECOMMEND
+}
+
+enum FinalDecision {
+  APPROVED
+  REJECTED
+}
+
+// ─────────────────────────────────────────────
+// Auth models (Better Auth — id is String)
+// ─────────────────────────────────────────────
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          Role?     @default(EMPLOYEE)
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+
+  sessions Session[]
+  accounts Account[]
+
+  employeeId Int?
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+
+  leaveApplications LeaveApplication[]
+  leavePartAs       LeavePartA[]
+  leavePartBs       LeavePartB[]
+  leavePartCs       LeavePartC[]
+  leavePartDs       LeavePartD[]
+
+  @@map("user")
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  impersonatedBy String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ─────────────────────────────────────────────
+// HR models
+// ─────────────────────────────────────────────
+
+model Employee {
+  id              Int      @id @default(autoincrement())
+  employee_number String   @unique
+  current_address String
+  date_of_birth   DateTime
+  gender          Gender   @default(MALE)
+  picture         String
+  place_of_birth  String
+  is_citizen      Boolean
+  chief_name      String?
+  district        String?
+  nationality     String?
+  position        String?
+  is_active       Boolean
+  created_at      DateTime
+  updated_at      DateTime
+
+  users User[]
+
+  section_id Int?
+  section    Section? @relation(fields: [section_id], references: [id])
+
+  legal_info_id Int?
+  legal_info    LegalInfo? @relation(fields: [legal_info_id], references: [id])
+
+  education_history_id Int?
+  education_history    EducationHistory? @relation(fields: [education_history_id], references: [id])
+
+  employment_history_id Int?
+  employment_history    EmploymentHistory? @relation(fields: [employment_history_id], references: [id])
+
+  references_id Int?
+  references    References? @relation(fields: [references_id], references: [id])
+
+  employee_documents_id Int?
+  employee_documents    EmployeeDocuments? @relation(fields: [employee_documents_id], references: [id])
+
+  leave_id     Int?
+  leave_part_a LeavePartA? @relation(fields: [leave_id], references: [id])
+
+  leaveApplications LeaveApplication[]
+  leaveBalance      LeaveBalance?
+}
+
+model LegalInfo {
+  id                    Int            @id @default(autoincrement())
+  father_name           String
+  is_father_deceased    Boolean
+  father_place_of_birth String
+  father_occupation     String
+  father_address        String
+  marital_status        MARITAL_STATUS @default(SINGLE)
+  has_criminal_record   Boolean
+  criminal_record_info  String?
+  has_been_dismissed    Boolean
+  dismissal_reason      String?
+  employee_id           Int
+
+  employee Employee[]
+}
+
+model EducationHistory {
+  id                            Int      @id @default(autoincrement())
+  school_name                   String
+  date_of_entry                 DateTime
+  date_of_leave                 DateTime
+  qualification                 String
+  qualification_start_date      DateTime
+  qualification_completion_date DateTime
+  additional_skills             String[]
+  employee_id                   Int
+
+  employee Employee[]
+}
+
+model EmploymentHistory {
+  id                 Int      @id @default(autoincrement())
+  employer_name      String
+  employee_address   String
+  employer_position  String
+  duties             String[]
+  employment_start   DateTime
+  employment_end     DateTime
+  salary             String
+  reason_for_leaving String
+  notice_period      String
+  employee_id        Int
+
+  employee Employee[]
+}
+
+model References {
+  id            Int    @id @default(autoincrement())
+  refernce_name String
+  address       String
+  occupation    String
+  known_for     String
+  employee_id   Int
+
+  employee Employee[]
+}
+
+model EmployeeDocuments {
+  id                   Int      @id @default(autoincrement())
+  national_id          String
+  passport             String
+  acdemic_certificates String[]
+  police_clearance     String
+  medical_certificates String
+  drivers_license      String
+  created_at           DateTime
+  updated_at           DateTime
+  employee_id          Int
+
+  employee Employee[]
+}
+
+model Section {
+  id           Int        @id @default(autoincrement())
+  section_name String
+  employee_id  Int?
+  employee     Employee[]
+}
+
+// ─────────────────────────────────────────────
+// Leave models
+// ─────────────────────────────────────────────
+
+model LeaveApplication {
+  id         Int         @id @default(autoincrement())
+  leave_type LeaveType
+  start_date DateTime
+  end_date   DateTime
+  days       Int
+  reason     String?
+  status     LeaveStatus @default(PENDING)
+  applied_at DateTime    @default(now())
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  rejected_by_id   Int?
+  rejected_at      DateTime?
+  rejection_reason String?
+
+  // userId references User.id which is a String
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  employeeId Int?
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+
+  partA LeavePartA?
+  partB LeavePartB?
+  partC LeavePartC?
+  partD LeavePartD?
+}
+
+model LeavePartA {
+  id Int @id @default(autoincrement())
+
+  leave_application_id Int              @unique
+  leave_application    LeaveApplication @relation(fields: [leave_application_id], references: [id])
+
+  employee_name         String
+  employment_number     String
+  employee_position     String?
+  number_of_leave_days  Int
+  start_date            DateTime
+  end_date              DateTime
+  location_during_leave String?
+  phone_number          String
+  email                 String
+  current_address       String
+  date_of_request       DateTime
+  employee_signature    String
+
+  // filled_by_id references User.id which is a String
+  filled_by_id String
+  filled_by    User   @relation(fields: [filled_by_id], references: [id])
+
+  filled_at DateTime   @default(now())
+  employees Employee[]
+}
+
+model LeavePartB {
+  id Int @id @default(autoincrement())
+
+  leave_application_id Int              @unique
+  leave_application    LeaveApplication @relation(fields: [leave_application_id], references: [id])
+
+  annual_leave_days    Int
+  deducted_days        Int
+  remaining_leave_days Int
+  date_of_approval     DateTime?
+  hr_signature         String?
+
+  // filled_by_id references User.id which is a String
+  filled_by_id String
+  filled_by    User   @relation(fields: [filled_by_id], references: [id])
+
+  filled_at DateTime @default(now())
+}
+
+model LeavePartC {
+  id Int @id @default(autoincrement())
+
+  leave_application_id Int              @unique
+  leave_application    LeaveApplication @relation(fields: [leave_application_id], references: [id])
+
+  supervisor_comments  String?
+  recommendation       Recommendation?
+  date_of_review       DateTime?
+  supervisor_signature String?
+
+  // filled_by_id references User.id which is a String
+  filled_by_id String
+  filled_by    User   @relation(fields: [filled_by_id], references: [id])
+
+  filled_at DateTime @default(now())
+}
+
+model LeavePartD {
+  id Int @id @default(autoincrement())
+
+  leave_application_id Int              @unique
+  leave_application    LeaveApplication @relation(fields: [leave_application_id], references: [id])
+
+  final_decision     FinalDecision
+  date_of_decision   DateTime?
+  approver_signature String?
+
+  // filled_by_id references User.id which is a String
+  filled_by_id String
+  filled_by    User   @relation(fields: [filled_by_id], references: [id])
+
+  filled_at DateTime @default(now())
+}
+
+model LeaveBalance {
+  id               Int      @id @default(autoincrement())
+  year             Int
+  annual_total     Int      @default(24)
+  annual_used      Int      @default(0)
+  annual_remaining Int      @default(24)
+  sick_total       Int      @default(12)
+  sick_used        Int      @default(0)
+  sick_remaining   Int      @default(12)
+  unpaid_used      Int      @default(0)
+  maternity_used   Int      @default(0)
+  carried_over     Int      @default(0)
+  updated_at       DateTime @updatedAt
+  created_at       DateTime @default(now())
+
+  employee_id Int      @unique
+  employee    Employee @relation(fields: [employee_id], references: [id])
+
+  @@unique([employee_id, year])
+}
