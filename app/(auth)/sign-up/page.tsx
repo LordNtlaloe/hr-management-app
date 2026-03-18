@@ -49,7 +49,7 @@ export default function SignUpPage() {
                         We sent a verification link to <span className="font-medium text-zinc-700 dark:text-zinc-300">{email}</span>
                     </p>
                 </div>
-                <Link href="/auth/sign-in">
+                <Link href="/sign-in">
                     <Button variant="outline" className="mt-2 w-full">
                         Back to sign in
                     </Button>
@@ -133,7 +133,7 @@ export default function SignUpPage() {
             <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
                 Already have an account?{" "}
                 <Link
-                    href="/auth/sign-in"
+                    href="/sign-in"
                     className="font-medium text-zinc-900 dark:text-zinc-50 hover:underline underline-offset-4"
                 >
                     Sign in

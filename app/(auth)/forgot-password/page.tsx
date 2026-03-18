@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
                         If <span className="font-medium text-zinc-700 dark:text-zinc-300">{email}</span> has an account, you'll receive a reset link shortly.
                     </p>
                 </div>
-                <Link href="/auth/sign-in">
+                <Link href="/sign-in">
                     <Button variant="outline" className="mt-2 w-full">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to sign in
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
             </form>
 
             <Link
-                href="/auth/sign-in"
+                href="/sign-in"
                 className="flex items-center justify-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
             >
                 <ArrowLeft className="h-3.5 w-3.5" />

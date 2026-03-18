@@ -36,7 +36,7 @@ export default function ResetPasswordPage({
             await resetPassword(
                 { newPassword: password, token: searchParams.token },
                 {
-                    onSuccess: () => router.push("/auth/sign-in?reset=true"),
+                    onSuccess: () => router.push("/sign-in?reset=true"),
                     onError: (ctx) => setError(ctx.error.message),
                 }
             );
