@@ -80,8 +80,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/leaves
 // Employee submits a new leave application (creates application + Part A)
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id: idParam } = await params
+        const id = parseInt(idParam)
+        
         const body = await request.json()
         const {
             leave_type,
