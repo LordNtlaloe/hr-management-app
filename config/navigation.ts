@@ -70,51 +70,57 @@ export const navigationConfig: NavSection[] = [
             },
             {
                 title: "Leave Management",
-                url: "/leave",
+                url: "/leaves",
                 icon: IconCalendarClock,
                 permissions: [UserRole.ADMIN, UserRole.HR_OFFICER, UserRole.SECTION_HEAD, UserRole.HEAD_OF_DEPARTMENT, UserRole.EMPLOYEE],
                 badge: { count: 12, variant: "destructive" },
                 items: [
                     {
+                        title: "All Leaves",
+                        url: "/leaves",
+                        icon: IconCalendarClock,
+                        permissions: [UserRole.ADMIN, UserRole.HR_OFFICER, UserRole.SECTION_HEAD, UserRole.HEAD_OF_DEPARTMENT],
+                    },
+                    {
                         title: "My Leave",
-                        url: "/leave/my-leave",
+                        url: "/leaves/my-leave",
                         icon: IconCalendar,
                         permissions: [UserRole.EMPLOYEE],
                     },
                     {
                         title: "Apply for Leave",
-                        url: "/leave/apply",
+                        url: "/leaves/apply",
                         icon: IconFileDescription,
                         permissions: [UserRole.EMPLOYEE],
                     },
                     {
                         title: "Pending Requests",
-                        url: "/leave/pending",
+                        url: "/leaves/pending",
                         icon: IconClock,
                         permissions: [UserRole.ADMIN, UserRole.HR_OFFICER, UserRole.SECTION_HEAD, UserRole.HEAD_OF_DEPARTMENT],
                         badge: 8,
                     },
                     {
                         title: "Approved",
-                        url: "/leave/approved",
+                        url: "/leaves/approved",
                         icon: IconCheckbox,
                         permissions: [UserRole.ADMIN, UserRole.HR_OFFICER, UserRole.SECTION_HEAD, UserRole.HEAD_OF_DEPARTMENT],
                     },
                     {
                         title: "Rejected",
-                        url: "/leave/rejected",
+                        url: "/leaves/rejected",
                         icon: IconX,
                         permissions: [UserRole.ADMIN, UserRole.HR_OFFICER, UserRole.SECTION_HEAD, UserRole.HEAD_OF_DEPARTMENT],
                     },
                     {
                         title: "Leave Balance",
-                        url: "/leave/balance",
+                        url: "/leaves/balance",
                         icon: IconFileChart,
                         permissions: [UserRole.ADMIN, UserRole.HR_OFFICER, UserRole.EMPLOYEE],
                     },
                     {
                         title: "Leave History",
-                        url: "/leave/history",
+                        url: "/leaves/history",
                         icon: IconHistory,
                         permissions: [UserRole.ADMIN, UserRole.HR_OFFICER, UserRole.EMPLOYEE],
                     },
@@ -128,7 +134,7 @@ export const navigationConfig: NavSection[] = [
                 items: [
                     {
                         title: "Leave Analytics",
-                        url: "/reports/leave-analytics",
+                        url: "/reports/leaves-analytics",
                         icon: IconReport,
                         permissions: [UserRole.ADMIN, UserRole.HR_OFFICER],
                     },
@@ -171,7 +177,7 @@ export const navigationConfig: NavSection[] = [
             },
             {
                 title: "My Leave",
-                url: "/leave/my-leave",
+                url: "/leaves/my-leave",
                 icon: IconCalendarClock,
                 permissions: [UserRole.EMPLOYEE],
             },
